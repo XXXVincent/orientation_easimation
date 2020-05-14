@@ -87,7 +87,7 @@ def train(cfg):
         if i % 10 == 0:
             now = datetime.datetime.now()
             now_s = now.strftime("%Y-%m-%d-%H-%M-%S")
-            name = cfg.MODEL_DIR + "/model_%s.pth" % now_s
+            name = cfg.MODEL_DIR + "/{}_model_{}.pth".format(cfg.BIN,now_s)
             torch.save(model.state_dict(), name)
 
 
