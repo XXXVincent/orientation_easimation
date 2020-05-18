@@ -104,9 +104,9 @@ class XML2KITTI():
                     if self.camera == 'front':
                         rot_y = round(degree2rad(float(v2)), 4)
                     elif self.camera == 'left':
-                        rot_y = round(degree2rad(float(v2)), 4) + PI/2
-                    elif self.camera == 'right':
                         rot_y = round(degree2rad(float(v2)), 4) - PI/2
+                    elif self.camera == 'right':
+                        rot_y = round(degree2rad(float(v2)), 4) + PI/2
                     else:
                         raise NameError("camera not recognized", self.camera)
                     xmin = object.find("bndbox").find("xmin").text

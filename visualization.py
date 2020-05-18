@@ -1,7 +1,7 @@
 import os
 import cv2
 import math
-def visual(img_path,gt_path,pred_path):
+def visual(img_path, gt_path,pred_path):
 
     img_list=sorted(os.listdir(img_path))
     obj_finished=0
@@ -97,9 +97,10 @@ def draw(path,bbx,alpha_pred,alpha_gt,rot_pred,rot_gt):
     cv2.imwrite(path, img)
 
 def main():
-    img_path = './data/test/image_vis_test/'
-    gt_path = './data/test/label'
-    pred_path = './utils/kitti_eval_offline/results/test_set'
+    img_path = r'C:\Users\vincent.xu\Desktop\orientation\dataset\kitti_dataset\label_check_minus90\img\\'
+    gt_path = r'C:\Users\vincent.xu\Desktop\orientation\dataset\kitti_dataset\label_check_minus90\gt'
+    pred_path = r'C:\Users\vincent.xu\Desktop\orientation\dataset\kitti_dataset\label_check_minus90\gt'
+    # save_path = r'C:\Users\vincent.xu\Desktop\orientation\dataset\kitti_dataset\label_check\front'
     visual(img_path, gt_path, pred_path)
 
 if __name__=='__main__':
