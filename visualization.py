@@ -97,9 +97,9 @@ def draw(path,bbx,alpha_pred,alpha_gt,rot_pred,rot_gt):
     cv2.imwrite(path, img)
 
 def main():
-    img_path = r'C:\Users\vincent.xu\Desktop\orientation\dataset\kitti_dataset\label_check_minus90\img\\'
-    gt_path = r'C:\Users\vincent.xu\Desktop\orientation\dataset\kitti_dataset\label_check_minus90\gt'
-    pred_path = r'C:\Users\vincent.xu\Desktop\orientation\dataset\kitti_dataset\label_check_minus90\gt'
+    img_path = r'C:\Users\vincent.xu\Desktop\orientation\orientation_easimation\data\image_viz\\'
+    gt_path = r'C:\Users\vincent.xu\Desktop\orientation\orientation_easimation\data\label'
+    pred_path = r'C:\Users\vincent.xu\Desktop\orientation\orientation_easimation\utils\kitti_eval_offline\results\test_set'
     # save_path = r'C:\Users\vincent.xu\Desktop\orientation\dataset\kitti_dataset\label_check\front'
     visual(img_path, gt_path, pred_path)
 

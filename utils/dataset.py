@@ -3,8 +3,9 @@ import csv
 import random
 import copy
 from PIL import Image
-from PIL import ImageFile
+from PIL import ImageFile, ImageDraw, ImageFont
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+import numpy as np
 
 import torch
 from torch.utils.data import Dataset
@@ -23,7 +24,7 @@ PI = 3.14159
 
 
 class KITTIDataset(Dataset):
-    def __init__(self, root, cfg, mode):
+    def __init__(self, root, cfg, mode, save_debug_pic=False):
         self.mode=mode
         self.mean = [102.9801, 115.9465, 122.7717]
         self.std = [1., 1., 1.]
@@ -32,8 +33,8 @@ class KITTIDataset(Dataset):
             self.label_path = os.path.join(root, 'label')
         #eval
         else:
-            self.image_path = os.path.join(root, 'test_debug', 'image')
-            self.label_path = os.path.join(root, 'test_debug', 'label')
+            self.image_path = os.path.join(root, 'image')
+            self.label_path = os.path.join(root, 'label')
 
         self.image_list = sorted(os.listdir(self.image_path))
         self.label_list = sorted(os.listdir(self.label_path))
@@ -48,6 +49,9 @@ class KITTIDataset(Dataset):
         # we need to load all annotations into buffer at first
         self.annotations = self.load_annotations()
         self.length = len(self.annotations)
+        self.debug_count = 0
+        self.save_debug_pic = save_debug_pic
+        self.debug_dir = r'C:\Users\vincent.xu\Desktop\orientation\orientation_easimation\data\debug'
         print('datalen: %d'%self.length)
 
     def __len__(self):
@@ -58,6 +62,8 @@ class KITTIDataset(Dataset):
         img = Image.open(os.path.join(self.image_path, anno['image']))
         bbox2d = anno['bbox2d']
         cropped_box = self.crop_image(img, bbox2d,self.mode)
+        if self.save_debug_pic:
+            img_debug = cropped_box.resize((200,200), Image.ANTIALIAS)
         if self.mode=='train':
             alpha = angle_utils.check_angle(anno['alpha'])
             new_alpha = angle_utils.get_new_alpha(alpha)
@@ -76,13 +82,39 @@ class KITTIDataset(Dataset):
                     [torch.cos(anchor[1]), torch.sin(anchor[1])])
                 confidence[anchor[0]] = 1.
                 confidence /= confidence.sum()
+            if self.save_debug_pic:
+                draw = ImageDraw.Draw(img_debug)
+                draw.text((5,5), 'bin:'+str(torch.argmax(confidence).item()), fill=(255,0,0))
+                bin = str(torch.argmax(confidence).item())
+                if bin == '0':
+                    img_debug.save(os.path.join(self.debug_dir,bin,str(self.debug_count).zfill(6)+'.jpg'))
+                elif bin == '1':
+                    img_debug.save(os.path.join(self.debug_dir,bin,str(self.debug_count).zfill(6)+'.jpg'))
 
+                self.debug_count += 1
             return cropped_box, dict(confidence=confidence,
                                      angle_offset=angle_offset, )
         else:
+
             cropped_box = F.to_tensor(cropped_box)[[2, 1, 0]]*255
             cropped_box = F.normalize(cropped_box, mean=self.mean, std=self.std)
-            return cropped_box, anno
+            if self.save_debug_pic:
+                alpha = angle_utils.check_angle(anno['alpha'])
+                new_alpha = angle_utils.get_new_alpha(alpha)
+                new_alpha = torch.tensor(new_alpha)
+                confidence = torch.zeros(self.bins)
+                angle_offset = torch.zeros(self.bins, 2)
+                anchors = angle_utils.compute_anchors(new_alpha, self.bins, self.overlapping)
+                for anchor in anchors:
+                    angle_offset[anchor[0], :] = torch.tensor(
+                        [torch.cos(anchor[1]), torch.sin(anchor[1])])
+                    confidence[anchor[0]] = 1.
+                    confidence /= confidence.sum()
+                draw = ImageDraw.Draw(img_debug)
+                draw.text((5,5), 'GT_bin:'+str(torch.argmax(confidence).item()), fill=(255,0,0))
+                return cropped_box, anno, np.array(img_debug), torch.argmax(confidence).item()
+            else:
+                return cropped_box, anno
 
     def load_annotations(self):
         """
