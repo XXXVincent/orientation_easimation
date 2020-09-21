@@ -158,10 +158,15 @@ class KITTIDataset(Dataset):
 
     def crop_image(self, img, bbox2d, mode):
         if mode=='train':
-            xmin = bbox2d[0] + random.randint(-self.jitter, self.jitter + 1)
-            ymin = bbox2d[1] + random.randint(-self.jitter, self.jitter + 1)
-            xmax = bbox2d[2] + random.randint(-self.jitter, self.jitter + 1)
-            ymax = bbox2d[3] + random.randint(-self.jitter, self.jitter + 1)
+            # xmin = bbox2d[0] + random.randint(-self.jitter, self.jitter + 1)
+            # ymin = bbox2d[1] + random.randint(-self.jitter, self.jitter + 1)
+            # xmax = bbox2d[2] + random.randint(-self.jitter, self.jitter + 1)
+            # ymax = bbox2d[3] + random.randint(-self.jitter, self.jitter + 1)
+            # change pixel jitter to bbox related jitter
+            xmin = bbox2d[0] * random.uniform(1-self.jitter, self.jitter + 1)
+            ymin = bbox2d[1] * random.uniform(1-self.jitter, self.jitter + 1)
+            xmax = bbox2d[2] * random.uniform(1-self.jitter, self.jitter + 1)
+            ymax = bbox2d[3] * random.uniform(1-self.jitter, self.jitter + 1)
 
             w, h = img.size
 
@@ -176,6 +181,7 @@ class KITTIDataset(Dataset):
         cropped_box = F.resize(cropped_box, size=(56, 56))
 
         return cropped_box
+
 
 
 

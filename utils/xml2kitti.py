@@ -89,7 +89,7 @@ class XML2KITTI():
                 print("Error in ", angle_file)
 
 
-    def get_objects(self, angle_file, xml_file):
+    def get_objects(self, angle_file, xml_file, min_obj_size=56*56):
         objs = []
 
         xml_content = open(xml_file, 'r').read()
@@ -114,6 +114,8 @@ class XML2KITTI():
                     ymin = object.find("bndbox").find("ymin").text
                     ymax = object.find("bndbox").find("ymax").text
                     bbox = [float(xmin), float(ymin), float(xmax), float(ymax)]
+                    if (bbox[3]-bbox[1])*(bbox[2]-bbox[0])<min_obj_size:
+                        continue
                     alpha = roty2alpha(K, rot_y, bbox)
                     objs.append({
                         "name": object.find("name").text,
